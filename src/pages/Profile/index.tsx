@@ -26,8 +26,8 @@ interface Patient {
 const Profile: React.FC = () => {
   return (
     <AdminLayout>
-      <Title title={`Perfil {patient.name}`} />
-      <Row>
+      <Title title={`Paciente: {patient.name}`} />
+      <Row className='info'>
         <Col xs={{ span: 24, offset: 0 }} lg={{ span: 5, offset: 0 }}>
           <Card title="Informações" containerStyle={{ marginTop: "15px" }}>
             <p>
