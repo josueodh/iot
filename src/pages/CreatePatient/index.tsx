@@ -38,7 +38,7 @@ const CreatePatient: React.FC = () => {
         <Input style={{ width: 400 }} />
       </Form.Item>
       
-      <Form.Item name={['user', 'date']} label="Date de Nascimento" rules={[{ type: 'date', required: true }]} >
+      <Form.Item name={['user', 'date']} label="Data de Nascimento" rules={[{ type: 'date', required: true }]} >
         <DatePicker />
       </Form.Item>
 

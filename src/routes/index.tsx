@@ -11,8 +11,8 @@ const Routes: React.FC = () => (
   <Switch>
     <Route path="/login" exact component={Login} />
     <Route path="/dashboard" component={Dashboard} />
-    <Route path="/teste" component={Profile} />
-    <Route path="/" component={CreatePatient} />
+    <Route path="/" component={Profile} />
+    <Route path="/create" component={CreatePatient} />
   </Switch>
 );
 
