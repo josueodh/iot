@@ -16,7 +16,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     api.get("/patients").then((response) =>
       setPatients(
-        response.data.patients.map((patient: Patient) => ({
+        response.data.map((patient: Patient) => ({
           id: patient.id,
           name: patient.name,
           phone: patient.phone,
