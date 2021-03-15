@@ -9,10 +9,10 @@ import Route from "./Route";
 
 const Routes: React.FC = () => (
   <Switch>
-    <Route path="/a" exact component={Login} />
+    <Route path="/" exact component={Login} />
     <Route path="/dashboard" component={Dashboard} isPrivate />
-    <Route path="/profile" component={Profile} isPrivate />
-    <Route path="/" component={CreatePatient} />
+    <Route path="/profile/:id" component={Profile} isPrivate />
+    <Route path="/create" component={CreatePatient} isPrivate />
   </Switch>
 );
 

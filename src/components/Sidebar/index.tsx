@@ -6,8 +6,10 @@ import logoImg from "../../assets/logo.png";
 import { FaList, FaUserEdit, FaAngleDoubleLeft } from "react-icons/fa";
 import { LogoContainer, Image } from "./styles";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/auth";
 const { Sider } = Layout;
 const Sidebar: React.FC = () => {
+  const { signOut } = useAuth();
   return (
     <Sider
       breakpoint="lg"
@@ -32,7 +34,7 @@ const Sidebar: React.FC = () => {
         <Menu.Item key="2" icon={<FaUserEdit />}>
           <Link to="/create">Novo Paciente</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<FaAngleDoubleLeft />}>
+        <Menu.Item key="3" icon={<FaAngleDoubleLeft />} onClick={signOut}>
           Sair
         </Menu.Item>
       </Menu>

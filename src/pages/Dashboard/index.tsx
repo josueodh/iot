@@ -4,7 +4,6 @@ import { Space, Table } from "antd";
 import AdminLayout from "../../layouts/Admin";
 import api from "../../services/api";
 import { Title } from "./styles";
-import { useAuth } from "../../hooks/auth";
 import { Link } from "react-router-dom";
 interface Patient {
   id: string;
@@ -48,10 +47,9 @@ const Dashboard: React.FC = () => {
             {
               title: "Ações",
               key: "action",
-              render: (text, record) => (
+              render: (patient, record) => (
                 <Space size="middle">
-                  <Link to={`profile/${text.id}`}>Show</Link>
-                  <a>Delete</a>
+                  <Link to={`profile/${patient.id}`}>Detalhes</Link>
                 </Space>
               ),
             },

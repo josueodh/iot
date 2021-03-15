@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { format, parseISO } from "date-fns";
 import Card from "../../components/Card";
 import AdminLayout from "../../layouts/Admin";
 import api from "../../services/api";
 import { Title } from "./styles";
-import { Col, Row } from "antd";
+import { Col, Row, Select } from "antd";
 import { HomeOutlined } from "@ant-design/icons";
 import {
   FaPrescriptionBottleAlt,
@@ -18,6 +18,7 @@ import {
 import { Tabs } from "antd";
 import ChartLine from "../../components/Charts/Line";
 import ChartColumn from "../../components/Charts/Column";
+import { useParams } from "react-router";
 interface Patient {
   id: string;
   name: string;
@@ -32,6 +33,9 @@ interface Patient {
   city: string;
   state: string;
   born_date: string;
+  smartband: string;
+  start: string;
+  observation: string;
 }
 
 interface Measurement {
@@ -57,44 +61,32 @@ interface Diary {
 const { TabPane } = Tabs;
 
 const Profile: React.FC = () => {
+  const { Option } = Select;
+  const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient>({} as Patient);
   const [adress, setAdress] = useState<string>();
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
+  const [date, setDate] = useState();
   const [diaries, setDiaries] = useState<Diary[]>([]);
   useEffect(() => {
-    async function loadPatient() {
-      const response = await api.get(
-        `patients/41ddde1f-9c55-410d-91f3-ed6cfe5bcc54`
-      );
-      setPatient(response.data);
-    }
-    loadPatient();
-  }, []);
+    api.get(`patients/${id}`).then((response) => setPatient(response.data));
+  }, [id]);
 
   useEffect(() => {
-    async function loadMeansurement() {
-      const response = await api.get(
-        `measurements/chart/41ddde1f-9c55-410d-91f3-ed6cfe5bcc54`,
-        {
-          params: {
-            date: "2021-03-12",
-          },
-        }
-      );
-      setMeasurements(response.data);
-    }
-    loadMeansurement();
-  }, [patient.id]);
+    api
+      .get(`measurements/chart/${id}`, {
+        params: {
+          date: "2021-03-11",
+        },
+      })
+      .then((response) => setMeasurements(response.data));
+  }, [id, date]);
 
   useEffect(() => {
-    async function loadDiaries() {
-      const response = await api.get(
-        `diaries/chart/41ddde1f-9c55-410d-91f3-ed6cfe5bcc54`
-      );
-      setDiaries(response.data);
-    }
-    loadDiaries();
-  });
+    api
+      .get(`diaries/chart/${id}`)
+      .then((response) => setDiaries(response.data));
+  }, [id]);
   useMemo(() => {
     const patientAdress = `${patient.street}, ${patient.number} - ${patient.neighborhood}, ${patient.city} - ${patient.state} - ${patient.cep}`;
     setAdress(patientAdress);
@@ -163,6 +155,10 @@ const Profile: React.FC = () => {
       };
     });
   }, [diaries]);
+
+  const handleChangeDateSelect = useCallback((value) => {
+    setDate(value);
+  }, []);
   return (
     <AdminLayout>
       <Title title={`Paciente: ${patient.name}`} />
@@ -171,42 +167,35 @@ const Profile: React.FC = () => {
           <Card title="Informações" containerStyle={{ marginTop: "15px" }}>
             <p>
               <FaCalendarDay /> Data de Nascimento:{" "}
-              <span style={{ float: "right" }}>
-                {format(parseISO(patient.born_date), "dd/MM/yyyy")}
-              </span>
+              <span>{patient.born_date}</span>
             </p>
             <hr />
             <p>
-              <FaEnvelopeSquare /> Email:{" "}
-              <span style={{ float: "right" }}>patient.email</span>
+              <FaEnvelopeSquare /> Email: <span>{patient.email}</span>
             </p>
             <hr />
 
             <p>
-              <HomeOutlined /> Endereço:{" "}
-              <span style={{ float: "right" }}>{adress}</span>
+              <HomeOutlined /> Endereço: <span>{adress}</span>
             </p>
-            <br />
-            <br />
             <hr />
 
             <p>
-              <FaBluetooth /> Smartband:{" "}
-              <span style={{ float: "right" }}>patient.smartband</span>
+              <FaBluetooth /> Smartband: <span> {patient.smartband}</span>
             </p>
             <hr />
 
             <p>
               <FaRegChartBar /> Início Monitoramento:{" "}
-              <span style={{ float: "right" }}>
-                <p>patient.start</p>
+              <span>
+                <p>format(parseISO(patient.start), "HH:mm")</p>
               </span>
             </p>
             <hr />
 
             <p>
               <FaFolderPlus /> CID:{" "}
-              <div style={{ float: "right" }}>
+              <div>
                 <p>patient.cid</p>
               </div>
             </p>
@@ -214,14 +203,8 @@ const Profile: React.FC = () => {
 
             <p>
               <FaPrescriptionBottleAlt /> Observações:{" "}
-              <div style={{ float: "right" }}>
-                <p>
-                  patient.observations Lorem ipsum dolor sit amet consectetur
-                  adipisicing elit. Iure repellendus quae aliquam unde
-                  voluptatem atque molestias eius ratione quidem quo, eveniet
-                  voluptatum animi necessitatibus dolorem consequuntur quod
-                  deleniti cupiditate nostrum?
-                </p>
+              <div>
+                <p>{patient.observation}</p>
               </div>
             </p>
           </Card>
@@ -230,6 +213,12 @@ const Profile: React.FC = () => {
           <Card
             title={`Gráficos de Monitoramento`}
             containerStyle={{ marginTop: "15px" }}
+            extra={
+              <Select style={{ width: 120 }}>
+                <Option value="jack">15/03/2021</Option>
+                <Option value="2021-03-2021">13/03/2021</Option>
+              </Select>
+            }
           >
             <Tabs type="card">
               <TabPane tab="Temperatura" key="1">
@@ -240,9 +229,8 @@ const Profile: React.FC = () => {
                   yField="temperature"
                   seriesField="category"
                 />
-                dataArterial
               </TabPane>
-              <TabPane tab="Frequência Arterial" key="2">
+              <TabPane tab="Pressão Arterial" key="2">
                 <ChartLine
                   data={dataArterial}
                   color={["#1979C9"]}
@@ -260,7 +248,7 @@ const Profile: React.FC = () => {
                   seriesField="category"
                 />
               </TabPane>
-              <TabPane tab="Oxigenação do Sangue" key="4">
+              <TabPane tab="Saturação de Oxigênio - SPO2" key="4">
                 <ChartLine
                   data={dataBlood}
                   color={["rgba(255,0,0,0.7)"]}
