@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { format, parseISO } from "date-fns";
+import { format, lightFormat, parseISO } from "date-fns";
 import Card from "../../components/Card";
 import AdminLayout from "../../layouts/Admin";
 import api from "../../services/api";
 import { Title } from "./styles";
-import { Col, Row, Select } from "antd";
-import { HomeOutlined } from "@ant-design/icons";
+import { Button, Col, Row, Select } from "antd";
+import { DownloadOutlined, HomeOutlined } from "@ant-design/icons";
 import {
   FaPrescriptionBottleAlt,
   FaRegChartBar,
   FaCalendarDay,
   FaEnvelopeSquare,
   FaBluetooth,
-  FaFolderPlus,
 } from "react-icons/fa";
 
 import { Tabs } from "antd";
@@ -34,7 +33,7 @@ interface Patient {
   state: string;
   born_date: string;
   smartband: string;
-  start: string;
+  start: Date;
   observation: string;
 }
 
@@ -66,7 +65,8 @@ const Profile: React.FC = () => {
   const [patient, setPatient] = useState<Patient>({} as Patient);
   const [adress, setAdress] = useState<string>();
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
-  const [date, setDate] = useState();
+  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const [days, setDays] = useState<string[]>([]);
   const [diaries, setDiaries] = useState<Diary[]>([]);
   useEffect(() => {
     api.get(`patients/${id}`).then((response) => setPatient(response.data));
@@ -76,12 +76,14 @@ const Profile: React.FC = () => {
     api
       .get(`measurements/chart/${id}`, {
         params: {
-          date: "2021-03-11",
+          date: date,
         },
       })
-      .then((response) => setMeasurements(response.data));
+      .then((response) => {
+        setMeasurements(response.data.measurements);
+        setDays(response.data.days);
+      });
   }, [id, date]);
-
   useEffect(() => {
     api
       .get(`diaries/chart/${id}`)
@@ -140,8 +142,9 @@ const Profile: React.FC = () => {
 
   const dataSleep = useMemo(() => {
     return diaries.map((diary: Diary) => {
+      console.log(diary.sleep);
       return {
-        sleep: parseISO(diary.sleep),
+        sleep: diary.sleep,
         date: format(parseISO(diary.date), "dd/MM/yyyy"),
       };
     });
@@ -157,8 +160,18 @@ const Profile: React.FC = () => {
   }, [diaries]);
 
   const handleChangeDateSelect = useCallback((value) => {
-    setDate(value);
+    const breakDate = value.split("/");
+    setDate(
+      lightFormat(
+        new Date(breakDate[2], breakDate[1] - 1, breakDate[0]),
+        "yyyy-MM-dd"
+      )
+    );
   }, []);
+
+  const handleDownloadExcel = useCallback(() => {
+    api.get(`/excel/${id}`).then((response) => console.log(response));
+  }, [id]);
   return (
     <AdminLayout>
       <Title title={`Paciente: ${patient.name}`} />
@@ -166,8 +179,7 @@ const Profile: React.FC = () => {
         <Col xs={{ span: 24, offset: 0 }} lg={{ span: 8, offset: 0 }}>
           <Card title="Informações" containerStyle={{ marginTop: "15px" }}>
             <p>
-              <FaCalendarDay /> Data de Nascimento:{" "}
-              <span>{patient.born_date}</span>
+              <FaCalendarDay /> Data de Nascimento: <span></span>
             </p>
             <hr />
             <p>
@@ -188,16 +200,12 @@ const Profile: React.FC = () => {
             <p>
               <FaRegChartBar /> Início Monitoramento:{" "}
               <span>
-                <p>format(parseISO(patient.start), "HH:mm")</p>
+                {new Date(patient.start).getDate() +
+                  "/" +
+                  (new Date(patient.start).getMonth() - 1) +
+                  "/" +
+                  new Date(patient.start).getFullYear()}
               </span>
-            </p>
-            <hr />
-
-            <p>
-              <FaFolderPlus /> CID:{" "}
-              <div>
-                <p>patient.cid</p>
-              </div>
             </p>
             <hr />
 
@@ -207,6 +215,14 @@ const Profile: React.FC = () => {
                 <p>{patient.observation}</p>
               </div>
             </p>
+            <Button
+              type="primary"
+              block
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadExcel}
+            >
+              Download Excel Paciente
+            </Button>
           </Card>
         </Col>
         <Col xs={{ span: 24, offset: 0 }} lg={{ span: 15, offset: 1 }}>
@@ -214,9 +230,10 @@ const Profile: React.FC = () => {
             title={`Gráficos de Monitoramento`}
             containerStyle={{ marginTop: "15px" }}
             extra={
-              <Select style={{ width: 120 }}>
-                <Option value="jack">15/03/2021</Option>
-                <Option value="2021-03-2021">13/03/2021</Option>
+              <Select style={{ width: 120 }} onChange={handleChangeDateSelect}>
+                {days.map((day: string) => (
+                  <Option value={day}>{day}</Option>
+                ))}
               </Select>
             }
           >
@@ -261,7 +278,7 @@ const Profile: React.FC = () => {
                 <ChartColumn data={dataWalk} xField="date" yField="walk" />
               </TabPane>
               <TabPane tab="Sono" key="6">
-                <ChartColumn data={dataSleep} xField="date" yField="walk" />
+                <ChartColumn data={dataSleep} xField="date" yField="sleep" />
               </TabPane>
             </Tabs>
           </Card>

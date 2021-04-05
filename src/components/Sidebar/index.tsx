@@ -1,7 +1,6 @@
 import React from "react";
 
 import { Menu, Layout } from "antd";
-import { DashboardFilled } from "@ant-design/icons";
 import logoImg from "../../assets/logo.png";
 import { FaList, FaUserEdit, FaAngleDoubleLeft } from "react-icons/fa";
 import { LogoContainer, Image } from "./styles";

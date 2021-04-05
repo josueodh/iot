@@ -5,7 +5,6 @@ import { Button, Image, Content } from "./styles";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useForm } from "react-hook-form";
 import logo from "../../assets/logo.png";
-import api from "../../services/api";
 import { useAuth } from "../../hooks/auth";
 
 interface IFormInput {
@@ -23,7 +22,6 @@ const Login: React.FC = () => {
           password: data.password,
         });
       } catch (err) {
-        console.log(err);
         return;
       }
     },

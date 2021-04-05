@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 interface Patient {
   id: string;
   name: string;
-  phone: string;
+  cpf: string;
 }
 const Dashboard: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -18,7 +18,7 @@ const Dashboard: React.FC = () => {
         response.data.map((patient: Patient) => ({
           id: patient.id,
           name: patient.name,
-          phone: patient.phone,
+          cpf: patient.cpf,
         }))
       )
     );
@@ -35,14 +35,14 @@ const Dashboard: React.FC = () => {
           rowKey={(patient) => patient.id}
           columns={[
             {
+              title: "CPF",
+              dataIndex: "cpf",
+              key: "cpf",
+            },
+            {
               title: "Nome",
               dataIndex: "name",
               key: "name",
-            },
-            {
-              title: "Telefone",
-              dataIndex: "phone",
-              key: "phone",
             },
             {
               title: "Ações",

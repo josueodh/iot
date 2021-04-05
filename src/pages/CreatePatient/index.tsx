@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+/* eslint-disable no-template-curly-in-string */
+import React from "react";
 import AdminLayout from "../../layouts/Admin";
-import { Form, Input, InputNumber, Button, DatePicker, Divider } from "antd";
+import { Form, Input, Button, DatePicker, Divider } from "antd";
 import { Title } from "./styles";
 import api from "../../services/api";
+import { useHistory } from "react-router";
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
 };
-
 const validateMessages = {
   required: "${label} campo obrigatório",
   types: {
@@ -21,9 +22,10 @@ const validateMessages = {
 };
 
 const CreatePatient: React.FC = () => {
+  const history = useHistory();
   const onFinish = async (values: any) => {
-    const response = await api.post("/patients", values);
-    console.log(response);
+    await api.post("/patients", values);
+    history.push("/dashboard");
   };
 
   return (

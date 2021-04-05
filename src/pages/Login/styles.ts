@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Form, Button as ButtonAnt } from "antd";
+import { Button as ButtonAnt } from "antd";
 
 export const Content = styled.div`
   max-width: 330px;
